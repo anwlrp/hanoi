@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인터랙티브 웹앱 포트폴리오</title>
+    <style>
+        
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #2c3e50;
+            --accent-color: #3498db;
+            --btn-bg: #e2e6ea;
+            --btn-text: #333;
+            --card-bg: #ffffff;
+            --floor-color: #7f8c8d;
+        }
+
+        body.dark-theme {
+            --bg-color: #1a1a2e;
+            --text-color: #e0e0e0;
+            --accent-color: #0f3460;
+            --btn-bg: #16213e;
+            --btn-text: #e0e0e0;
+            --card-bg: #22223b;
+            --floor-color: #4a4e69;
+        }
+
+        html {
+            scroll-behavior: smooth; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        
+        .theme-btn {
+            position: fixed; 
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, background-color 0.3s;
+            z-index: 1000;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.05);
+        }
+
+        
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .typing-container {
+            font-size: 2.5rem;
+            font-weight: bold;
+            height: 3.5rem;
+            text-align: center;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 2.5rem;
+            background-color: var(--text-color);
+            margin-left: 5px;
+            vertical-align: text-bottom;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .sub-text {
+            margin-top: 30px;
+            font-size: 1.2rem;
+            opacity: 0;
+            animation: fadeIn 2s forwards 1s;
+        }
+        
+        .sub-text a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 0.8; }
+        }
+
+        
+        .project-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 60px;
+        }
+
+        .project-section h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            margin: 20px auto;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: inline-block;
+            transition: background-color 0.5s;
+        }
+
+        input[type="number"] {
+            padding: 8px;
+            font-size: 16px;
+            width: 60px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        button.action-btn {
+            padding: 10px 15px;
+            font-size: 16px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-start { background-color: #3498db; }
+        .btn-start:hover { background-color: #2980b9; }
+        .btn-reset { background-color: #e74c3c; }
+        .btn-reset:hover { background-color: #c0392b; }
+        
+        .stats {
+            margin: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .stats span {
+            color: #e67e22;
+        }
+
+       
+        .board {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 300px;
+            margin-top: 40px;
+            border-bottom: 15px solid var(--floor-color);
+            width: 100%;
+            max-width: 800px;
+            transition: border-color 0.5s;
+        }
+        
+        .peg-container {
+            position: relative;
+            width: 33%;
+            height: 250px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+        }
+        
+        .pole {
+            position: absolute;
+            width: 14px;
+            height: 250px;
+            background-color: #95a5a6;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+            border-radius: 7px 7px 0 0;
+        }
+        
+        .disk {
+            height: 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.2);
+            margin-bottom: 2px;
+            z-index: 1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <button class="theme-btn" id="themeToggle" onclick="toggleTheme()">🌙 다크모드</button>
+
+    <section class="hero-section">
+        <div class="typing-container">
+            <span id="typingText"></span><span class="cursor"></span>
+        </div>
+        <div class="sub-text">
+            <p>스크롤을 내려 알고리즘을 눈으로 확인하세요! <a href="#hanoi-project">⬇️</a></p>
+        </div>
+    </section>
+
+    <section class="project-section" id="hanoi-project">
+        <h2>하노이 탑 시각화</h2>
+        
+        <div class="controls">
+            <label for="diskCount"><b>원판 개수:</b> </label>
+            <input type="number" id="diskCount" value="3" min="1" max="7" onchange="initHanoi()">
+            <button class="action-btn btn-start" onclick="startPlay()">자동 실행</button>
+            <button class="action-btn btn-reset" onclick="initHanoi()">초기화</button>
+        </div>
+
+        <div class="stats">
+            총 예상 이동 횟수: <span id="totalMoves">7</span> 회 &nbsp;&nbsp;|&nbsp;&nbsp; 
+            현재 이동 횟수: <span id="currentMove">0</span> 회
+        </div>
+
+        <div class="board">
+            <div class="peg-container" id="peg0"><div class="pole"></div></div>
+            <div class="peg-container" id="peg1"><div class="pole"></div></div>
+            <div class="peg-container" id="peg2"><div class="pole"></div></div>
+        </div>
+    </section>
+
+    <script>
+        
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById("themeToggle");
+            
+            body.classList.toggle("dark-theme");
+
+            if (body.classList.contains("dark-theme")) {
+                btn.textContent = "☀️ 화이트모드";
+            } else {
+                btn.textContent = "🌙 다크모드";
+            }
+        }
+
+
+        const textArray = [
+            "안녕하세요!",
+            "데이터를 시각화합니다.",
+            "당신의 학습을 도와줍니다.",
+            "간편하게 알고리즘을 이해하세요!"
+        ];
+        
+        let arrayIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typingSpeed = 80; 
+        const deleteSpeed = 40;  
+        const delayBetweenTexts = 1500; 
+
+        function typeEffect() {
+            const currentText = textArray[arrayIndex];
+            const displayElement = document.getElementById("typingText");
+
+            if (isDeleting) {
+                displayElement.textContent = currentText.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                displayElement.textContent = currentText.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let timer = isDeleting ? deleteSpeed : typingSpeed;
+
+            if (!isDeleting && charIndex === currentText.length) {
+                isDeleting = true;
+                timer = delayBetweenTexts;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                arrayIndex = (arrayIndex + 1) % textArray.length;
+            }
+
+            setTimeout(typeEffect, timer);
+        }
+
+      
+        let numDisks = 3;
+        let pegs = [[], [], []];
+        let moveCount = 0;
+        let moves = [];
+        let isAnimating = false;
+        let delay = 500; 
+
+        function initHanoi() {
+            isAnimating = false; 
+            let countInput = document.getElementById('diskCount').value;
+            numDisks = parseInt(countInput);
+            
+            if (isNaN(numDisks) || numDisks < 1) numDisks = 1;
+            if (numDisks > 7) numDisks = 7;
+            document.getElementById('diskCount').value = numDisks;
+
+            pegs = [[], [], []];
+            for (let i = numDisks; i >= 1; i--) {
+                pegs[0].push(i);
+            }
+
+            moveCount = 0;
+            document.getElementById('totalMoves').innerText = Math.pow(2, numDisks) - 1;
+            document.getElementById('currentMove').innerText = moveCount;
+            
+            renderHanoi();
+        }
+
+        function renderHanoi() {
+            for (let i = 0; i < 3; i++) {
+                const pegDiv = document.getElementById(`peg${i}`);
+                const existingDisks = pegDiv.querySelectorAll('.disk');
+                existingDisks.forEach(disk => disk.remove());
+                
+                pegs[i].forEach(diskSize => {
+                    const disk = document.createElement('div');
+                    disk.className = 'disk';
+                    disk.style.width = `${diskSize * 25 + 30}px`;
+                    disk.style.backgroundColor = `hsl(${diskSize * 45}, 70%, 55%)`;
+                    pegDiv.appendChild(disk);
+                });
+            }
+            document.getElementById('currentMove').innerText = moveCount;
+        }
+
+        function hanoiLogic(n, source, aux, target) {
+            if (n === 0) return;
+            hanoiLogic(n - 1, source, target, aux);
+            moves.push({ from: source, to: target });
+            hanoiLogic(n - 1, aux, source, target);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function startPlay() {
+            if (isAnimating) return; 
+            
+            initHanoi(); 
+            isAnimating = true;
+            moves = [];
+            
+            hanoiLogic(numDisks, 0, 1, 2);
+
+            for (let move of moves) {
+                if (!isAnimating) break; 
+                
+                let disk = pegs[move.from].pop();
+                pegs[move.to].push(disk);
+                moveCount++;
+                
+                renderHanoi(); 
+                await sleep(delay); 
+            }
+            isAnimating = false;
+        }
+
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            typeEffect(); 
+            initHanoi();  
+        });
+    </script>
+</body>
+</html>
